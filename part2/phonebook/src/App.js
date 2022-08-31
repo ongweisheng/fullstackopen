@@ -20,7 +20,7 @@ const App = () => {
 
   const addContact = (event) => {
     event.preventDefault()
-    const nameObject = {
+    const contactObject = {
       name: newName,
       number: newNumber,
       id: persons.length + 1
@@ -28,8 +28,10 @@ const App = () => {
     if (persons.some((person) => person.name === newName)) {
       alert(`${newName} is already added to phonebook`)
     } else {
-      setPersons(persons.concat(nameObject))
-      setNewName("")
+      axios.post("http://localhost:3001/persons", contactObject)
+      .then(response => {
+        console.log(response)
+      })
     }
   }
 
