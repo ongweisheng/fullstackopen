@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react'
-import axios from "axios"
 import Filter from "./components/Filter"
 import PersonForm from './components/PersonForm'
 import Persons from './components/Persons'
+import personsService from './services/personsService'
 
 const App = () => {
   const [persons, setPersons] = useState([])
@@ -11,26 +11,27 @@ const App = () => {
   const [newFilter, setNewFilter] = useState("")
 
   useEffect(() => {
-    axios
-      .get("http://localhost:3001/persons")
-      .then(response => {
-        setPersons(response.data)
+    personsService
+      .getAll()
+      .then(initialPersons => {
+        setPersons(initialPersons)
       })
-  })
+  }, [])
 
-  const addContact = (event) => {
+  const addPerson = (event) => {
     event.preventDefault()
-    const contactObject = {
+    const personObject = {
       name: newName,
       number: newNumber,
-      id: persons.length + 1
     }
     if (persons.some((person) => person.name === newName)) {
       alert(`${newName} is already added to phonebook`)
     } else {
-      axios.post("http://localhost:3001/persons", contactObject)
-      .then(response => {
-        console.log(response)
+      personsService.create(personObject)
+      .then(returnedPerson => {
+        setPersons(persons.concat(returnedPerson))
+        setNewName("")
+        setNewNumber("")
       })
     }
   }
@@ -52,7 +53,7 @@ const App = () => {
       <h2>Phonebook</h2>
       <Filter value={newFilter} onChange={handleFilterChange} />
       <h2>add a new</h2>
-      <PersonForm onSubmit={addContact} newName={newName} onNameChange={handleNameChange} newNumber={newNumber} onNumberChange={handleNumberChange} />
+      <PersonForm onSubmit={addPerson} newName={newName} onNameChange={handleNameChange} newNumber={newNumber} onNumberChange={handleNumberChange} />
       <h2>Numbers</h2>
       <Persons persons={persons} searchFilter={newFilter} />
     </div>
